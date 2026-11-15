@@ -11,3 +11,10 @@ header #overview-open{width:auto;font-size:12px;padding:10px 14px}#overview{widt
 #altitude{align-items:flex-end}
 @media(max-width:360px){#places{width:calc(100% - 16px);justify-content:space-between}#places button{padding:10px 7px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+
+#speed-controls{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:4px 7px;border:1px solid #ffffff24;background:#122425dd;backdrop-filter:blur(12px);border-radius:28px}
+#speed-controls span{font-size:11px;padding:0 7px;color:#ced6c5}#speed-controls button{min-height:44px;min-width:44px;padding:8px 12px;font-size:13px}
+body:has(dialog[open]) #speed-controls{visibility:hidden}
+#desktop-hint{bottom:158px}
+@media(pointer:coarse),(max-width:700px){#speed-controls{bottom:calc(86px + env(safe-area-inset-bottom))}#joystick{bottom:180px}.look-hint{bottom:205px}#altitude{bottom:170px}}
+@media(max-height:480px){#speed-controls{bottom:76px}#joystick{left:18px;bottom:85px;width:96px;height:96px}#altitude{bottom:80px}.look-hint{display:none}#desktop-hint{display:none}}

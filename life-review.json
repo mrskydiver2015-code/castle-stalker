@@ -1,0 +1,7 @@
+{
+  "version": "blender-quality-life",
+  "additions": {"speedMultipliers": [1,2,4,6], "paintings": 2, "grassTufts": 350, "heatherClumps": 70, "rowans": 3, "gulls": 7},
+  "verification": {"mobileEmulation": true, "desktop": true, "safeSpawns": ["hall","chamber","shore","roof"], "speedRatiosMeasured": [1,1.9985,3.9022,5.9991], "fastWalkStoppedAtFurniture": true, "controlViewportWidths": [320,390,844,1440], "javascriptErrors": 0},
+  "limits": ["Physical phone performance not measured", "New decoration is a web layer, not yet merged into the Blender source"],
+  "generation": "Local procedural geometry and existing images; no paid asset generation"
+}

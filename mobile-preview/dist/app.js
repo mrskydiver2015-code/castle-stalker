@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.js';
+import {furnishIsland} from './life.js';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {dress,loadSurfaces,waterMaterial} from './surfaces.js';
 
@@ -41,6 +42,12 @@ const foot=new THREE.Vector3(),direction=new THREE.Vector3();
 const ray=new THREE.Raycaster(),down=new THREE.Vector3(0,0,-1);
 const keys=new Set(),move={x:0,y:0};
 let elevation=0,yaw=0,pitch=0,flying=false,active=false,ready=false;
+let life,speedMultiplier=1;
+for(const button of document.querySelectorAll('[data-speed]'))button.addEventListener('click',()=>{
+  speedMultiplier=Number(button.dataset.speed);
+  document.querySelectorAll('[data-speed]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.speed)===speedMultiplier)));
+  notify('Hastighet '+speedMultiplier+'× · gå, flyg och rundflyg');
+});
 let savedWalk,currentPlace='hall',noticeTimer;
 let orbiting=false,orbitAngle=Math.atan2(40,30);
 function stopOrbit(){orbiting=false;$('orbit').setAttribute('aria-pressed','false');}
@@ -62,8 +69,8 @@ for(const key of Object.keys(preferences)){
   });
 }
 const places={
-  hall:{label:'Stora salen',position:[1.8,3.1,6.1],yaw:-2.65,pitch:0},
-  chamber:{label:'Övre kammaren',position:[-.6,1,10.05],yaw:2.15,pitch:-.08},
+  hall:{label:'Stora salen',position:[1.8,3.1,6.1],yaw:-3.0,pitch:-.03},
+  chamber:{label:'Övre kammaren',position:[-.6,1,10.05],yaw:2.75,pitch:-.10},
   shore:{label:'Landstigningen',position:[11,15,0],yaw:-2.49,pitch:.30},
   roof:{label:'Utsikt över Loch Laich',position:[-4.95,-2,15.425],yaw:-2.5,pitch:.02}
 };
@@ -241,6 +248,7 @@ try{
   });
   const sea=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),water.material);
   sea.position.z=-.08;sea.name='Loch water';scene.add(sea);
+  life=furnishIsland(scene,solid,ground);
   scene.updateMatrixWorld(true);ready=true;setPlace('hall');toggleDrone();applyQuality();
   $('loading').textContent='Slottet är redo.';$('start').disabled=false;$('intro-tour').disabled=false;
 }catch(error){
@@ -251,23 +259,25 @@ function frame(now){
   requestAnimationFrame(frame);
   const elapsed=(now-previous)/1000;
   const dt=Math.min(elapsed,.035);previous=now;
-  if(active&&!document.hidden&&!matchMedia('(prefers-reduced-motion:reduce)').matches)water.time.value+=dt;
+  if(active&&!document.hidden&&!matchMedia('(prefers-reduced-motion:reduce)').matches){water.time.value+=dt;life?.update(dt);}
   if(active&&!document.hidden){
     let forward=move.y+Number(keys.has('KeyW')||keys.has('ArrowUp'))-Number(keys.has('KeyS')||keys.has('ArrowDown'));
     let sideways=move.x+Number(keys.has('KeyD')||keys.has('ArrowRight'))-Number(keys.has('KeyA')||keys.has('ArrowLeft'));
     const length=Math.hypot(forward,sideways);if(length>1){forward/=length;sideways/=length;}
-    const speed=flying?6:preferences.pace==='slow'?1.1:1.65;
+    const speed=(flying?6:preferences.pace==='slow'?1.1:1.65)*speedMultiplier;
     const dx=(Math.sin(yaw)*forward+Math.cos(yaw)*sideways)*speed*dt;
     const dy=(Math.cos(yaw)*forward-Math.sin(yaw)*sideways)*speed*dt;
     if(flying&&orbiting){
-      orbitAngle+=dt*.045;foot.set(Math.cos(orbitAngle)*48,Math.sin(orbitAngle)*48,24);
+      orbitAngle+=dt*.045*speedMultiplier;foot.set(Math.cos(orbitAngle)*48,Math.sin(orbitAngle)*48,24);
       yaw=Math.atan2(-foot.x,-foot.y);pitch=-.30;
     }else if(flying){
-      const candidate=foot.clone().add(new THREE.Vector3(dx,dy,(elevation+Number(keys.has('KeyE'))-Number(keys.has('KeyQ')))*7*dt));
+      const candidate=foot.clone().add(new THREE.Vector3(dx,dy,(elevation+Number(keys.has('KeyE'))-Number(keys.has('KeyQ')))*7*dt*speedMultiplier));
       candidate.z=THREE.MathUtils.clamp(candidate.z,3,65);
       if(Math.hypot(candidate.x,candidate.y)<140&&(candidate.z>23||Math.abs(candidate.x)>9||Math.abs(candidate.y)>11))foot.copy(candidate);
     }else{
-      walkAxis('x',dx);walkAxis('y',dy);
+      // Small collision steps prevent fast walking from crossing thin objects.
+      const steps=Math.max(1,Math.ceil(Math.hypot(dx,dy)/.07));
+      for(let step=0;step<steps;step++){walkAxis('x',dx/steps);walkAxis('y',dy/steps);}
       if(Math.abs(foot.x)<3.3&&Math.abs(foot.y)<4.8){
         const room=foot.z>=9.9?'chamber':'hall';
         if(room!==currentPlace){currentPlace=room;updateMode();}
@@ -281,6 +291,7 @@ function frame(now){
   frames++;frameTime+=elapsed;
 }
 requestAnimationFrame(frame);
-window.pilotState=()=>({ready,active,flying,position:foot.toArray(),yaw,pitch,place:currentPlace,tourIndex,preferences:{...preferences},sceneVersion:"blender-quality",orbiting,floor:floorAt(foot.x,foot.y,foot.z),blocked:blocked(foot),meshes:scene.children.filter(o=>o.isMesh).length,triangles:renderer.info.render.triangles,averageFps:frames/Math.max(.1,frameTime)});
+window.pilotState=()=>({ready,active,flying,position:foot.toArray(),yaw,pitch,place:currentPlace,tourIndex,preferences:{...preferences},sceneVersion:"blender-quality-life",speedMultiplier,details:life?.stats,orbiting,floor:floorAt(foot.x,foot.y,foot.z),blocked:blocked(foot),meshes:scene.children.filter(o=>o.isMesh).length,triangles:renderer.info.render.triangles,averageFps:frames/Math.max(.1,frameTime)});
+
 
 

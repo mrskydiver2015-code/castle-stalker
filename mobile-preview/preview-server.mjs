@@ -1,7 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-const root=path.resolve('dist');
+const root=path.resolve(import.meta.dirname,'dist');
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.png':'image/png'};
 http.createServer(async(req,res)=>{
   try{
@@ -11,3 +11,5 @@ http.createServer(async(req,res)=>{
     const body=await fs.readFile(file);res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'});res.end(body);
   }catch{res.writeHead(404);res.end('Not found');}
 }).listen(4187,'127.0.0.1',()=>console.log('http://127.0.0.1:4187'));
+
+

@@ -10,6 +10,6 @@ Vercel project `castle-stalker`, team `mrskydiver2015-4065s-projects`, is connec
 
 ## Source and audits
 
-Blender scenes, GLB exports, Python scripts, renders and source images are preserved in this repository. The latest Blender quality pass is shown at `/blender.html`; the interactive pilot currently uses the earlier scene data in `castle.json`.
+Blender scenes, GLB exports, Python scripts, renders and source images are preserved in this repository. The latest Blender quality pass is shown at `/blender.html`; the interactive pilot loads `assets/castle-quality.glb`, with separate realtime water and landscape. `castle.json` is retained as an earlier audit artifact.
 
 Original migration source is preserved locally as a backup. Temporary archives, browser captures and Blender backup files are excluded from Git.

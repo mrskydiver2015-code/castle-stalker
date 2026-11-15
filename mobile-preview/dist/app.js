@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.js';
+import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {dress,loadSurfaces,waterMaterial} from './surfaces.js';
 
 const $ = id => document.getElementById(id);
@@ -41,6 +42,9 @@ const ray=new THREE.Raycaster(),down=new THREE.Vector3(0,0,-1);
 const keys=new Set(),move={x:0,y:0};
 let elevation=0,yaw=0,pitch=0,flying=false,active=false,ready=false;
 let savedWalk,currentPlace='hall',noticeTimer;
+let orbiting=false,orbitAngle=Math.atan2(40,30);
+function stopOrbit(){orbiting=false;$('orbit').setAttribute('aria-pressed','false');}
+$('orbit').addEventListener('click',()=>{orbiting=!orbiting;orbitAngle=Math.atan2(foot.y,foot.x);$('orbit').setAttribute('aria-pressed',String(orbiting));});
 const preferences={pace:'slow',sensitivity:'low',quality:'auto'};
 try{const stored=JSON.parse(localStorage.getItem('stalker-preferences')||'{}');for(const key of Object.keys(preferences)){if([...$(key).options].some(o=>o.value===stored[key]))preferences[key]=stored[key];}}catch{}
 function applyQuality(){
@@ -59,9 +63,9 @@ for(const key of Object.keys(preferences)){
 }
 const places={
   hall:{label:'Stora salen',position:[1.8,3.1,6.1],yaw:-2.65,pitch:0},
-  chamber:{label:'Övre kammaren',position:[.5,2.8,10.05],yaw:Math.PI,pitch:0},
+  chamber:{label:'Övre kammaren',position:[-.6,1,10.05],yaw:2.15,pitch:-.08},
   shore:{label:'Landstigningen',position:[11,15,0],yaw:-2.49,pitch:.30},
-  roof:{label:'Utsikt över Loch Laich',position:[-4.95,-2,15.425],yaw:-1.5,pitch:.02}
+  roof:{label:'Utsikt över Loch Laich',position:[-4.95,-2,15.425],yaw:-2.5,pitch:.02}
 };
 function notify(message){
   $('notice').textContent=message;$('notice').classList.add('visible');
@@ -105,6 +109,7 @@ function updateMode(){
   document.querySelectorAll('[data-place]').forEach(button=>button.setAttribute('aria-pressed',String(!flying&&button.dataset.place===currentPlace)));
 }
 function setPlace(key){
+  stopOrbit();
   if(!ready)return;
   const place=places[key];flying=false;currentPlace=key;
   foot.fromArray(place.position);yaw=place.yaw;pitch=place.pitch;
@@ -112,6 +117,7 @@ function setPlace(key){
   updateMode();resetInput();camera.position.copy(foot).add(new THREE.Vector3(0,0,1.65));
 }
 function toggleDrone(){
+  stopOrbit();
   if(!ready)return;
   resetInput();
   if(flying){
@@ -165,7 +171,7 @@ document.addEventListener('pointerlockchange',()=>{
 const movementKeys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyQ','KeyE'];
 addEventListener('keydown',event=>{
   if(!active||!movementKeys.includes(event.code))return;
-  event.preventDefault();keys.add(event.code);
+  event.preventDefault();stopOrbit();keys.add(event.code);
 });
 addEventListener('keyup',event=>keys.delete(event.code));
 addEventListener('blur',resetInput);document.addEventListener('visibilitychange',resetInput);
@@ -175,7 +181,7 @@ canvas.addEventListener('pointerdown',event=>{
   lookPointer=event.pointerId;lookX=event.clientX;lookY=event.clientY;
   canvas.setPointerCapture(event.pointerId);canvas.focus();
 });
-function look(dx,dy){const sensitivity=preferences.sensitivity==='low'?.0018:.003;yaw+=dx*sensitivity;pitch=THREE.MathUtils.clamp(pitch-dy*sensitivity,-1.3,1.3);}
+function look(dx,dy){stopOrbit();const sensitivity=preferences.sensitivity==='low'?.0018:.003;yaw+=dx*sensitivity;pitch=THREE.MathUtils.clamp(pitch-dy*sensitivity,-1.3,1.3);}
 canvas.addEventListener('pointermove',event=>{
   if(!active||document.pointerLockElement||event.pointerId!==lookPointer)return;
   look(event.clientX-lookX,event.clientY-lookY);lookX=event.clientX;lookY=event.clientY;
@@ -184,6 +190,7 @@ document.addEventListener('mousemove',event=>{if(active&&document.pointerLockEle
 for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,()=>{lookPointer=null;});
 const joystick=$('joystick');let joystickPointer=null;
 function updateJoystick(event){
+  stopOrbit();
   const bounds=joystick.getBoundingClientRect(),limit=bounds.width*.34;
   let x=(event.clientX-bounds.left-bounds.width/2)/limit,y=(event.clientY-bounds.top-bounds.height/2)/limit;
   const length=Math.hypot(x,y);if(length>1){x/=length;y/=length;}
@@ -193,28 +200,47 @@ joystick.addEventListener('pointerdown',event=>{if(!active)return;joystickPointe
 joystick.addEventListener('pointermove',event=>{if(event.pointerId===joystickPointer)updateJoystick(event);});
 for(const type of ['pointerup','pointercancel','lostpointercapture'])joystick.addEventListener(type,()=>{joystickPointer=null;move.x=move.y=0;$('stick').style.transform='';});
 for(const [id,value] of [['up',1],['down',-1]]){
-  $(id).addEventListener('pointerdown',event=>{if(!active)return;elevation=value;$(id).setPointerCapture(event.pointerId);});
+  $(id).addEventListener('pointerdown',event=>{if(!active)return;stopOrbit();elevation=value;$(id).setPointerCapture(event.pointerId);});
   for(const type of ['pointerup','pointercancel','lostpointercapture'])$(id).addEventListener(type,()=>{elevation=0;});
 }
 canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();active=false;resetInput();notify('3D-vyn pausades. Ladda om sidan för att fortsätta.');});
 
 try{
   await loadSurfaces(renderer,scene);
-  const response=await fetch('castle.json');if(!response.ok)throw Error(`Scene HTTP ${response.status}`);
-  const data=await response.json();
-  for(const item of data.objects){
-    if(/Distant ridge/.test(item.name))continue;
-    const geometry=new THREE.BufferGeometry();
-    geometry.setAttribute('position',new THREE.Float32BufferAttribute(item.positions,3));
-    geometry.setAttribute('normal',new THREE.Float32BufferAttribute(item.normals,3));geometry.computeBoundingSphere();
-    const material=new THREE.MeshStandardMaterial({color:new THREE.Color(...item.color),roughness:item.roughness,side:THREE.DoubleSide});
-    const mesh=new THREE.Mesh(geometry,material);mesh.name=item.name;
-    dress(mesh);
-    mesh.castShadow=!/Water|Distant/.test(item.name);mesh.receiveShadow=true;scene.add(mesh);
-    if(/Water/.test(item.name))mesh.material=water.material;
-    if(/Hall floor|Hall ceiling|Island|step|roof deck|threshold|landing|approach/i.test(item.name))ground.push(mesh);
-    if(!/Water|Distant|Island|Hall floor|Hall ceiling|roof deck/i.test(item.name))solid.push(mesh);
-  }
+  const model=await new GLTFLoader().loadAsync('assets/castle-quality.glb',event=>{
+    $('loading').textContent=event.total?'Laddar slottet · '+Math.round(event.loaded/event.total*100)+' %':'Laddar slottets detaljer…';
+  });
+  // glTF is Y-up; navigation and the Blender source use Z-up.
+  model.scene.rotation.x=Math.PI/2;model.scene.updateMatrixWorld(true);
+  const materials=new Set();
+  model.scene.traverse(source=>{
+    if(!source.isMesh)return;
+    const name=source.name.replaceAll('_',' ');
+    if(/Distant ridge/i.test(name))return;
+    const geometry=source.geometry.clone().applyMatrix4(source.matrixWorld);
+    geometry.computeBoundingSphere();
+    const mesh=new THREE.Mesh(geometry,source.material);mesh.name=name;
+    // Keep the exported UVs and PBR materials. Refined materials used colour
+    // images as normal maps in the source; use these as subtle height instead.
+    for(const material of [mesh.material].flat()){
+      if(materials.has(material))continue;materials.add(material);
+      if(/^Refined/.test(material.name)){
+        material.normalMap=null;material.bumpMap=material.map;
+        material.bumpScale=/stone/i.test(material.name)?.035:.012;
+      }
+      for(const map of [material.map,material.normalMap,material.roughnessMap])if(map)map.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+    }
+    mesh.castShadow=!/Water/i.test(name);mesh.receiveShadow=true;scene.add(mesh);
+    if(/Water/i.test(name))mesh.material=water.material;
+    if(/Hall floor|Hall ceiling|Island|step|roof deck|threshold|landing|approach/i.test(name))ground.push(mesh);
+    if(!/Water|Distant|Island|Hall floor|Hall ceiling|roof deck|Candle flame/i.test(name))solid.push(mesh);
+    if(/Candle flame/i.test(name)){
+      const center=new THREE.Box3().setFromObject(mesh).getCenter(new THREE.Vector3());
+      const glow=new THREE.PointLight('#ffba72',2,3,2);glow.position.copy(center);scene.add(glow);
+    }
+  });
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),water.material);
+  sea.position.z=-.08;sea.name='Loch water';scene.add(sea);
   scene.updateMatrixWorld(true);ready=true;setPlace('hall');toggleDrone();applyQuality();
   $('loading').textContent='Slottet är redo.';$('start').disabled=false;$('intro-tour').disabled=false;
 }catch(error){
@@ -233,7 +259,10 @@ function frame(now){
     const speed=flying?6:preferences.pace==='slow'?1.1:1.65;
     const dx=(Math.sin(yaw)*forward+Math.cos(yaw)*sideways)*speed*dt;
     const dy=(Math.cos(yaw)*forward-Math.sin(yaw)*sideways)*speed*dt;
-    if(flying){
+    if(flying&&orbiting){
+      orbitAngle+=dt*.045;foot.set(Math.cos(orbitAngle)*48,Math.sin(orbitAngle)*48,24);
+      yaw=Math.atan2(-foot.x,-foot.y);pitch=-.30;
+    }else if(flying){
       const candidate=foot.clone().add(new THREE.Vector3(dx,dy,(elevation+Number(keys.has('KeyE'))-Number(keys.has('KeyQ')))*7*dt));
       candidate.z=THREE.MathUtils.clamp(candidate.z,3,65);
       if(Math.hypot(candidate.x,candidate.y)<140&&(candidate.z>23||Math.abs(candidate.x)>9||Math.abs(candidate.y)>11))foot.copy(candidate);
@@ -248,9 +277,10 @@ function frame(now){
     camera.position.z=THREE.MathUtils.lerp(camera.position.z,foot.z+1.65,1-Math.exp(-18*dt));
   }
   direction.set(Math.sin(yaw)*Math.cos(pitch),Math.cos(yaw)*Math.cos(pitch),Math.sin(pitch));
-  camera.lookAt(camera.position.clone().add(direction));renderer.render(scene,camera);
+  camera.lookAt(camera.position.clone().add(direction));if(!document.hidden)renderer.render(scene,camera);
   frames++;frameTime+=elapsed;
 }
 requestAnimationFrame(frame);
-window.pilotState=()=>({ready,active,flying,position:foot.toArray(),yaw,pitch,place:currentPlace,tourIndex,preferences:{...preferences},meshes:scene.children.filter(o=>o.isMesh).length,triangles:renderer.info.render.triangles,averageFps:frames/Math.max(.1,frameTime)});
+window.pilotState=()=>({ready,active,flying,position:foot.toArray(),yaw,pitch,place:currentPlace,tourIndex,preferences:{...preferences},sceneVersion:"blender-quality",orbiting,floor:floorAt(foot.x,foot.y,foot.z),blocked:blocked(foot),meshes:scene.children.filter(o=>o.isMesh).length,triangles:renderer.info.render.triangles,averageFps:frames/Math.max(.1,frameTime)});
+
 

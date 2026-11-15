@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-13",
+  "scope": "User experience iteration on the approved rough navigable pilot; no new rooms or structural export",
+  "authorization": "Nu, mer krediter är ok. Användare i fokus",
+  "changes": ["Five user-paced tour stops", "Slow walking and reduced look sensitivity by default", "Saved speed, sensitivity and quality preferences", "Correct Z-up hemisphere lighting", "Locally authored preliminary stone and wood surfaces", "Shore viewpoint moved back onto verified walkable terrain"],
+  "verified": ["All five stops and free-exploration exit", "Help dialog pauses and resumes", "Preferences survive reload", "Low graphics setting renders", "360x740 portrait and 740x360 landscape", "No horizontal overflow at 360px", "No JavaScript errors in mobile interaction test", "Shore spawn and walking"],
+  "evidence": ["renders/ux-hall.png", "renders/ux-mobile-tour.png", "renders/ux-landscape.png"],
+  "limitations": ["Mobile tested through Chromium emulation, not a physical phone", "Preliminary surfaces and landscape, not AAA", "Historical room details remain interpretive", "External Blender asset libraries and generators disabled"],
+  "paidCreditsConsumed": 0
+}

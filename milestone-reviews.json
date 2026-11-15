@@ -1,0 +1,12 @@
+{
+  "stage": "Preliminary spatial study",
+  "createdThrough": "Blender MCP execute_code",
+  "approvedDirection": "User requested fewer rooms, realistic graphics, priority on views, mobile and desktop.",
+  "currentScope": "One hall, exterior and roof viewpoint",
+  "checks": {"sceneSaved":true,"hallOpeningsBooleanCut":true,"arrivalRendered":true,"hallRendered":true,"planRendered":true},
+  "limitations": ["Preliminary materials and coarse landscape", "Interior staircase and complete traversable roof route pending", "Opening positions proposed and awaiting comparison with historical plan", "No runtime or device performance validation"],
+  "functionApproval": "Pending detailed layout review",
+  "formApproval": "Pending",
+  "runtimeApproval": "Pending",
+  "paidGenerationSpend": 0
+}

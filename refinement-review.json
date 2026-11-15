@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-13",
+  "intent": "Small coherent mobile-first castle experience, two rooms, views prioritized. User asks to optimize existing subscriptions and credits, use history, no further high-resolution generation.",
+  "historyReviewed": [
+    "Bygg om projektbiblioteket till v2",
+    "🤖 AI – RADAR3"
+  ],
+  "toolDecision": "Use existing Blender MCP, built-in image generation, Playwright and Sites. fal discovered but no additional account or subscription introduced. Zapier not required.",
+  "higgsfield": {
+    "submitted": 0,
+    "rejected": 4,
+    "reason": "Requires basic plan or higher",
+    "estimatedCreditsNotSpent": 12.5
+  },
+  "images": {
+    "generator": "built-in image_gen",
+    "prompts": [
+      "Production environment texture for an interactive photorealistic Scottish island castle experience. EXACT full spherical equirectangular 360x180 panorama, 2:1 aspect ratio. Camera on a tiny island in a tranquil west Highland sea loch, inspired by Loch Laich. Horizon precisely at vertical midpoint. Distant dark rugged grassy mountain ridges across the horizon, realistic layered depth, varied shorelines at least 400 metres away. Top half luminous moody overcast sky, clouds opening to warm late afternoon sunlight from southwest, soft blue grey atmospheric haze. Bottom half continuous dark slate blue rippled loch water all the way to the nadir. No foreground land, no buildings, no castle, no boats, no people, no text. Seamless wrap left-right, no lens fisheye, physically believable photographic HDR-like soft lighting, restrained natural colors. This is a spherical environment map not a regular landscape photograph.",
+      "Photorealistic seamless tileable base color albedo texture of an ancient Scottish castle rubble masonry wall, orthographic flat-on view, 4 metres square. Irregular roughly shaped grey brown granite stones of varied sizes with fine pale weathered lime mortar joints, subtle lichen, damp weathering, realistic grain. All stones are small to medium, roughly 20 to 55 cm, naturally fitted uneven courses, NOT regular modern bricks. Neutral diffuse even illumination, no directional shadows, no vignette, no perspective, no objects, no borders, no words. Edges tile perfectly. High fidelity scanned PBR texture appearance.",
+      "Photorealistic seamless tileable albedo texture of aged medieval oak floorboards, orthographic view straight down, 4 metres square. Ten long wide wooden planks running vertically edge to edge with fine dark joins, muted desaturated warm grey brown timber, subtle natural knots and realistic fine grain, small wear marks and tiny peg holes, irregular mellow patina. No orange or yellow timber. Flat neutral diffuse illumination, no cast shadows, no perspective, no vignette, no labels, no borders. Edges tile seamlessly. High fidelity photogrammetric material appearance.",
+      "Photorealistic seamless tileable ground albedo texture for an ancient Scottish coastal island, orthographic straight-down view, 4 metres square. Dense short wind flattened mossy olive grass interspersed with exposed dark weathered gravel, small grey stones, tiny muted ochre tufts. Natural variation with no large distinctive features or paths. Muted realistic greens, no vivid neon, flat even diffuse illumination without directional shadows, no perspective, no vignette, no objects, no borders or words. Seamless tile edges, scanned PBR material appearance."
+    ],
+    "sourceDirectory": "source-images",
+    "runtimeDirectory": "mobile-preview/dist/assets",
+    "runtimeSizes": {
+      "materials": 768,
+      "panoramaWidth": 1536
+    },
+    "billing": "Exact built-in generation credits not returned by tool"
+  },
+  "verification": {
+    "mobile": "Chromium 390x844 and 844x390 touch emulation",
+    "overview": "All cards and flight navigation pass",
+    "touch": "Simultaneous look and walk pass",
+    "stairs": "Hall floor 6.10 to upper landing 10.05 verified by keyboard movement",
+    "errors": 0
+  },
+  "limitations": [
+    "Physical iPhone and Safari not tested",
+    "AI landscape is an interpretation, not a survey",
+    "Two compact rooms; still an evolving visual pilot"
+  ]
+}

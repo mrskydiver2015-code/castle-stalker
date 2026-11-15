@@ -1,0 +1,13 @@
+.playwright-mcp/
+*.tar
+*.tar.gz
+*.tgz
+*.blend1
+*.blend2
+node_modules/
+.vercel/
+.migration-backup/
+.tools/
+.env
+.env.*
+!.env.example

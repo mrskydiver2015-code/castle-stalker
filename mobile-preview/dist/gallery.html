@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Castle Stalker · Pilot</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101719;color:#edf1ed;font-family:system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:32px 20px 60px}h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(36px,7vw,64px);margin:0 0 12px}p{color:#aebcbd;line-height:1.6;max-width:650px}nav{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}button{min-height:48px;border:1px solid #526364;background:transparent;color:inherit;border-radius:24px;padding:10px 20px;font:inherit;cursor:pointer}button[aria-pressed=true]{background:#d7e6dc;color:#14221b;border-color:#d7e6dc}button:focus-visible,a:focus-visible{outline:3px solid #e4b66e;outline-offset:4px}figure{margin:0}img{display:block;width:100%;height:auto;border-radius:12px;background:#263235}figcaption{margin-top:14px;display:flex;justify-content:space-between;gap:16px;color:#bcc9c7}a{color:#e3c596;min-height:44px;display:inline-flex;align-items:center}small{display:block;color:#829493;margin-top:36px;line-height:1.6} @media(max-width:480px){main{padding:24px 12px}button{padding:10px 15px}figcaption{display:block}}
+</style>
+</head>
+<body><main>
+<h1>Castle Stalker</h1>
+<p>Första rumsliga studien i Blender. Här kan du granska proportioner, rum och kameravyer. Material och landskap är preliminära. <a href="./">Öppna den interaktiva vandringen och flygläget.</a></p>
+<nav aria-label="Välj vy">
+<button aria-pressed="true" data-view="arrival-0001">Exteriör</button>
+<button aria-pressed="false" data-view="hall">Stora salen</button>
+<button aria-pressed="false" data-view="roof">Utsikt</button>
+<button aria-pressed="false" data-view="plan">Planvy</button>
+</nav>
+<figure><img id="view" src="arrival-0001.png" alt="Grundmodell av slottet från landstigningen" width="960" height="600"><figcaption><span id="caption" aria-live="polite">Exteriören från landstigningen</span><a id="full" href="arrival-0001.png" target="_blank" rel="noopener">Öppna bilden i full storlek ↗</a></figcaption></figure>
+<small>Modellerat med Blender MCP. Historiska yttermått ligger till grund för tornet. Fönsterplaceringar och landskap är föreslagna och behöver vidare kontroll.</small>
+</main><script>
+const views={
+ 'arrival-0001':['Exteriören från landstigningen','Grundmodell av slottet från landstigningen'],
+ hall:['Stora salen med djupa fönsternischer','Grundmodell av stora salen med bord, bänkar och fönster'],
+ roof:['Utsikten från taknivå','Preliminär komposition av vatten och berg från taknivå'],
+ plan:['Salens planvy','Planvy av salen med entré, bord och fönsternischer']
+};
+document.querySelectorAll('button[data-view]').forEach(button=>button.addEventListener('click',()=>{
+ const key=button.dataset.view;
+ document.querySelectorAll('button[data-view]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+ document.getElementById('view').src=key+'.png';document.getElementById('view').alt=views[key][1];
+ document.getElementById('caption').textContent=views[key][0];document.getElementById('full').href=key+'.png';
+}));
+</script></body></html>
+

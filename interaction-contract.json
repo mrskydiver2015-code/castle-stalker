@@ -1,0 +1,17 @@
+{
+  "stage": "Spatial review. Runtime implementation pending.",
+  "scope": "One finished hall, exterior arrival and roof outlook. Cellar deferred.",
+  "historicalSource": "https://canmore.org.uk/site/23298",
+  "towerDimensionsMetres": [11.8,14.8],
+  "wallThicknessMetres": 2.7,
+  "proposedPlayer": {"eyeHeight":1.65,"radius":0.28,"walkSpeed":1.6},
+  "desktop": {"walk":"WASD and mouse, arrow keys supported","exitPointerLock":"Escape","fly":"Optional controlled orbit around island with return to walking"},
+  "mobile": {"walk":"Left thumb joystick, right drag to look","alternatives":"Tap named viewpoint for guided transition","fly":"Drag to orbit, pinch to change distance","controlsMinimumCssPixels":48},
+  "comfort": {"headBob":false,"automaticCameraRotation":false,"reducedMotion":true,"resetLocation":true},
+  "collision": "Grounded capsule, wall and parapet collision, continuous stair ramps. To be tested in runtime.",
+  "performanceTargets": {"desktopFps":60,"mobileFps":30,"status":"Targets, unmeasured"},
+  "readiness": "Scene, textures, lighting and collision loaded before walking is enabled",
+  "artDirection": "Realistic stone, water and landscape. Single post-rain lighting setup.",
+  "unverified": ["Historical placement and dimensions of individual openings","Interior stair geometry","Terrain elevations","Mobile rendering and controls"],
+  "review": "Layout approval required before final composition, Form approval before runtime export under build-3d-game-rooms skill."
+}
